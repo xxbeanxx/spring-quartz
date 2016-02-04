@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+		xmlns="http://www.springframework.org/schema/beans"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="
+				http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:property-placeholder location="classpath:application.properties"/>
+	<context:property-placeholder location="classpath*:application-overrides.properties"/>
+
+	<!-- =================================================================== -->
+	<!--         Jobs                                                        -->
+	<!-- =================================================================== -->
+
+	<bean id="sampleJob" class="com.github.xxbeanxx.quartz.SampleJob"/>
+
+	<!-- =================================================================== -->
+	<!--         Job Details                                                 -->
+	<!-- =================================================================== -->
+
+	<!-- for times when you just need to invoke a method on a specific object -->
+<!-- 
+	<bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="sampleJob"/>
+		<property name="targetMethod" value="execute"/>
+	</bean>
+-->
+
+	<!-- for times when you need more complex processing, passing data to the scheduled job -->
+	<bean id="sampleJobDetail" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass" value="com.github.xxbeanxx.quartz.SampleJob"/>
+		<property name="durability" value="true" />
+	</bean>
+
+	<!-- =================================================================== -->
+	<!--         Job Triggers                                                -->
+	<!-- =================================================================== -->
+
+	<!-- Run the job every second with initial delay of 2 seconds -->
+	<bean id="sampleTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="sampleJobDetail" />
+		<property name="startDelay" value="2000" />
+		<property name="repeatInterval" value="1000" />
+	</bean>
+
+	<!-- Run the job every 5 seconds only on Weekends -->
+<!-- 
+	<bean class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="sampleJobDetail" />
+		<property name="cronExpression" value="0/5 * * ? * SAT-SUN" />
+	</bean>
+-->
+
+	<!-- =================================================================== -->
+	<!--         Quartz Scheduler                                            -->
+	<!-- =================================================================== -->
+
+	<!-- scheduler factory bean to glue together jobDetails and triggers to Configure Quartz Scheduler -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="jobDetails">
+			<list>
+				<ref bean="sampleJobDetail"/>
+			</list>
+		</property>
+
+		<property name="triggers">
+			<list>
+				<ref bean="sampleTrigger"/>
+			</list>
+		</property>
+
+	</bean>
+</beans>
