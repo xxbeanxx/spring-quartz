@@ -1,1 +1,1 @@
-# spring-quartz
+# Spring / Quartz Sample Application
